@@ -2,7 +2,7 @@
 Dataset and data loading utilities for divNet training.
 
 Loads preprocessed .pt MRI volumes from:
-    {data_root}/3D_tensors/{CN,MCI,AD}/*.pt
+    {data_root}/3d-tensors/{CN,MCI,AD}/*.pt
 
 Each .pt file: float32 tensor of shape [1, 192, 192, 192]
 Labels: CN=0, MCI=1, AD=2
@@ -22,7 +22,7 @@ CLASS_MAP = {"CN": 0, "MCI": 1, "AD": 2}
 
 def collect_file_paths(data_root):
     """Scan data_root/3D_tensors/{CN,MCI,AD}/ and return (paths, labels)."""
-    tensor_dir = os.path.join(data_root, "3D_tensors")
+    tensor_dir = os.path.join(data_root, "3d-tensors")
     paths = []
     labels = []
 
@@ -204,7 +204,7 @@ def build_dataloaders(cfg):
 
     if len(paths) == 0:
         raise RuntimeError(
-            f"No .pt files found in {data_cfg['data_root']}/3D_tensors/{{CN,MCI,AD}}/. "
+            f"No .pt files found in {data_cfg['data_root']}/3d-tensors/{{CN,MCI,AD}}/. "
             "Check data_root in config."
         )
 

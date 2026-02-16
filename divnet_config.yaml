@@ -1,5 +1,5 @@
 data:
-  data_root: ./data
+  data_root: /workspace/pumpkinlab-storage-dhl
   batch_size: 2
   val_batch_size: 1
   num_workers: 4
