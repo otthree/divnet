@@ -25,5 +25,9 @@ training:
   grad_clip: 1.0
   early_stopping_patience: 20
 
+wandb:
+  project: DivNet AD Classification
+  enabled: true
+
 save:
   checkpoint_dir: ./checkpoints/divnet

@@ -7,6 +7,7 @@ Usage:
 """
 
 import argparse
+import datetime
 import os
 import time
 from collections import defaultdict
@@ -20,6 +21,8 @@ from sklearn.metrics import (
     confusion_matrix,
     roc_auc_score,
 )
+
+import wandb
 
 from divnet_model import DivNet
 from divnet_dataset import build_dataloaders, CLASS_MAP
@@ -279,6 +282,16 @@ def train(cfg, device):
     }
     patience_counter = 0
 
+    # wandb init
+    wandb_cfg = cfg.get("wandb", {})
+    if wandb_cfg.get("enabled", True):
+        wandb.login()
+        wandb.init(
+            project=wandb_cfg.get("project", "DivNet AD Classification"),
+            name=f"DivNet {datetime.datetime.now()}",
+            config=cfg,
+        )
+
     print(f"\nStarting training for {train_cfg['epochs']} epochs...")
     print(f"Device: {device}")
     print(f"Batch size: {cfg['data']['batch_size']}")
@@ -309,6 +322,18 @@ def train(cfg, device):
               f"Val mAUC: {val_metrics['macro_auc']:.4f}  "
               f"LR: {current_lr:.6f}  "
               f"Time: {elapsed:.1f}s")
+
+        if wandb.run is not None:
+            wandb.log({
+                "epoch": epoch,
+                "train_loss": train_loss,
+                "train_acc": train_acc,
+                "val_loss": val_metrics["loss"],
+                "val_acc": val_metrics["accuracy"],
+                "val_balanced_acc": val_metrics["balanced_accuracy"],
+                "val_macro_auc": val_metrics["macro_auc"],
+                "lr": current_lr,
+            })
 
         # Checkpoint saving
         checkpoint_state = {
@@ -384,6 +409,17 @@ def train(cfg, device):
         test_metrics = validate(model, test_loader, criterion, device,
                                 num_classes=model_cfg["num_classes"])
         print_metrics(test_metrics, class_names, phase="Test")
+
+        if wandb.run is not None:
+            wandb.log({
+                "test_loss": test_metrics["loss"],
+                "test_acc": test_metrics["accuracy"],
+                "test_balanced_acc": test_metrics["balanced_accuracy"],
+                "test_macro_auc": test_metrics["macro_auc"],
+            })
+
+    if wandb.run is not None:
+        wandb.finish()
 
     return model
 
