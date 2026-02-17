@@ -44,13 +44,25 @@ pip install -r requirements.txt
 
 ## Usage
 
-### Train
+### Train (single split)
+
+Standard train/val/test split training. Evaluates best model on test set at the end and saves a test confusion matrix plot.
 
 ```bash
 python3 divnet_train.py --config divnet_config.yaml
 ```
 
+### 5-Fold Cross-Validation
+
+Runs patient-stratified 5-fold CV. Each fold saves its own best checkpoint and confusion matrix plot (`fold_0_confusion_matrix.png` ... `fold_4_confusion_matrix.png`) under `<checkpoint_dir>/figures/`.
+
+```bash
+python3 divnet_train.py --config divnet_config.yaml --kfold
+```
+
 ### Test only (with saved checkpoint)
+
+Loads a checkpoint and evaluates on both validation and test sets. Saves confusion matrix plots for each.
 
 ```bash
 python3 divnet_train.py --config divnet_config.yaml --test
@@ -85,6 +97,7 @@ All hyperparameters are in `divnet_config.yaml`:
 - **Data augmentation**: Gaussian noise and random intensity shift (training only)
 - **Multi-metric checkpointing**: Saves best models by accuracy, balanced accuracy, macro AUC, and lowest loss
 - **Early stopping**: Based on validation loss with configurable patience
+- **Confusion matrix plots**: Automatically saved as PNG heatmaps under `<checkpoint_dir>/figures/`
 
 ## Files
 

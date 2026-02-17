@@ -13,6 +13,7 @@ import os
 import time
 from collections import defaultdict
 
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
@@ -205,6 +206,43 @@ def compute_per_class_metrics(cm, class_names):
             "accuracy": (tp + tn) / np.sum(cm) if np.sum(cm) > 0 else 0.0,
         }
     return metrics
+
+
+def plot_confusion_matrix(cm, class_names, phase="Validation", save_dir="figures"):
+    """Plot and save a confusion matrix as a heatmap."""
+    os.makedirs(save_dir, exist_ok=True)
+
+    fig, ax = plt.subplots(figsize=(6, 5))
+    im = ax.imshow(cm, interpolation="nearest", cmap=plt.cm.Blues)
+    ax.figure.colorbar(im, ax=ax)
+
+    ax.set(
+        xticks=np.arange(cm.shape[1]),
+        yticks=np.arange(cm.shape[0]),
+        xticklabels=class_names,
+        yticklabels=class_names,
+        xlabel="Predicted label",
+        ylabel="True label",
+        title=f"{phase} Confusion Matrix",
+    )
+
+    # Text annotations
+    thresh = cm.max() / 2.0
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            ax.text(
+                j, i, format(cm[i, j], "d"),
+                ha="center", va="center",
+                color="white" if cm[i, j] > thresh else "black",
+                fontsize=14,
+            )
+
+    fig.tight_layout()
+    filename = f"{phase.lower().replace(' ', '_')}_confusion_matrix.png"
+    save_path = os.path.join(save_dir, filename)
+    fig.savefig(save_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  Confusion matrix saved to {save_path}")
 
 
 def print_metrics(metrics, class_names, phase="Validation"):
@@ -418,6 +456,9 @@ def train(cfg, device):
         test_metrics = validate(model, test_loader, criterion, device,
                                 num_classes=model_cfg["num_classes"])
         print_metrics(test_metrics, class_names, phase="Test")
+        save_dir = os.path.join(checkpoint_dir, "figures")
+        plot_confusion_matrix(test_metrics["confusion_matrix"], class_names,
+                              phase="Test", save_dir=save_dir)
 
         if wandb.run is not None:
             wandb.log({
@@ -578,6 +619,9 @@ def train_kfold(cfg, device):
             best_metrics = validate(model, val_loader, criterion, device, num_classes=num_classes)
 
         print_metrics(best_metrics, class_names, phase=f"Fold {fold_idx} Best Val")
+        fold_fig_dir = os.path.join(save_cfg["checkpoint_dir"], "figures")
+        plot_confusion_matrix(best_metrics["confusion_matrix"], class_names,
+                              phase=f"Fold {fold_idx}", save_dir=fold_fig_dir)
 
         # Collect metrics for summary
         cm = best_metrics["confusion_matrix"]
@@ -636,15 +680,21 @@ def test_only(cfg, checkpoint_path, device):
 
     criterion = nn.CrossEntropyLoss(weight=class_weights.to(device))
 
+    save_dir = os.path.join(cfg["save"]["checkpoint_dir"], "figures")
+
     # Evaluate on validation set
     val_metrics = validate(model, val_loader, criterion, device,
                            num_classes=model_cfg["num_classes"])
     print_metrics(val_metrics, class_names, phase="Validation")
+    plot_confusion_matrix(val_metrics["confusion_matrix"], class_names,
+                          phase="Validation", save_dir=save_dir)
 
     # Evaluate on test set
     test_metrics = validate(model, test_loader, criterion, device,
                             num_classes=model_cfg["num_classes"])
     print_metrics(test_metrics, class_names, phase="Test")
+    plot_confusion_matrix(test_metrics["confusion_matrix"], class_names,
+                          phase="Test", save_dir=save_dir)
 
 
 def main():
