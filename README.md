@@ -47,20 +47,20 @@ pip install -r requirements.txt
 ### Train
 
 ```bash
-python divnet_train.py --config divnet_config.yaml
+python3 divnet_train.py --config divnet_config.yaml
 ```
 
 ### Test only (with saved checkpoint)
 
 ```bash
-python divnet_train.py --config divnet_config.yaml --test
-python divnet_train.py --config divnet_config.yaml --test --resume checkpoints/divnet/best_balanced_acc.pth
+python3 divnet_train.py --config divnet_config.yaml --test
+python3 divnet_train.py --config divnet_config.yaml --test --resume checkpoints/divnet/best_balanced_acc.pth
 ```
 
 ### GPU selection
 
 ```bash
-python divnet_train.py --config divnet_config.yaml --gpu 0
+python3 divnet_train.py --config divnet_config.yaml --gpu 0
 ```
 
 ## Configuration

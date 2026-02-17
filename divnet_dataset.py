@@ -12,9 +12,10 @@ import os
 import random
 from collections import Counter
 
+import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedKFold
 
 
 CLASS_MAP = {"CN": 0, "MCI": 1, "AD": 2}
@@ -107,6 +108,86 @@ def patient_stratified_split(paths, labels, train_ratio, val_ratio, test_ratio, 
     print(f"Split (scans):    train={len(train_data[0])}, val={len(val_data[0])}, test={len(test_data[0])}")
 
     return train_data, val_data, test_data
+
+
+def patient_stratified_kfold(paths, labels, n_folds=5, seed=42):
+    """
+    Split data into k folds by patient ID (stratified).
+    Returns list of k tuples: (train_paths, train_labels, val_paths, val_labels).
+    """
+    patient_to_indices = {}
+    for idx, path in enumerate(paths):
+        pid = extract_patient_id(path)
+        if pid not in patient_to_indices:
+            patient_to_indices[pid] = []
+        patient_to_indices[pid].append(idx)
+
+    patient_ids = np.array(list(patient_to_indices.keys()))
+    patient_labels = []
+    for pid in patient_ids:
+        pid_labels = [labels[i] for i in patient_to_indices[pid]]
+        patient_labels.append(max(set(pid_labels), key=pid_labels.count))
+    patient_labels = np.array(patient_labels)
+
+    skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+    folds = []
+
+    for fold_idx, (train_pid_indices, val_pid_indices) in enumerate(skf.split(patient_ids, patient_labels)):
+        train_pids = patient_ids[train_pid_indices]
+        val_pids = patient_ids[val_pid_indices]
+
+        train_indices = []
+        for pid in train_pids:
+            train_indices.extend(patient_to_indices[pid])
+        val_indices = []
+        for pid in val_pids:
+            val_indices.extend(patient_to_indices[pid])
+
+        fold_data = (
+            [paths[i] for i in train_indices],
+            [labels[i] for i in train_indices],
+            [paths[i] for i in val_indices],
+            [labels[i] for i in val_indices],
+        )
+        folds.append(fold_data)
+
+        print(f"Fold {fold_idx}: train_patients={len(train_pids)}, val_patients={len(val_pids)}, "
+              f"train_scans={len(train_indices)}, val_scans={len(val_indices)}")
+
+    return folds
+
+
+def build_dataloaders_kfold(cfg, fold_idx, folds_data):
+    """
+    Build train/val DataLoaders for a single fold.
+    Returns train_loader, val_loader, class_weights.
+    """
+    data_cfg = cfg["data"]
+    train_paths, train_labels, val_paths, val_labels = folds_data[fold_idx]
+
+    train_dataset = ADNIDataset(train_paths, train_labels, augment=True)
+    val_dataset = ADNIDataset(val_paths, val_labels, augment=False)
+
+    train_sampler = make_weighted_sampler(train_labels)
+    class_weights = compute_class_weights(train_labels)
+
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=data_cfg["batch_size"],
+        sampler=train_sampler,
+        num_workers=data_cfg["num_workers"],
+        pin_memory=True,
+        drop_last=False,
+    )
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=data_cfg["val_batch_size"],
+        shuffle=False,
+        num_workers=data_cfg["num_workers"],
+        pin_memory=True,
+    )
+
+    return train_loader, val_loader, class_weights
 
 
 class ADNIDataset(Dataset):

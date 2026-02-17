@@ -29,5 +29,8 @@ wandb:
   project: DivNet AD Classification
   enabled: true
 
+cross_validation:
+  k_folds: 5
+
 save:
   checkpoint_dir: ./checkpoints/divnet

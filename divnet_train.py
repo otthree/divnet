@@ -3,7 +3,8 @@ Training script for divNet: Diverging 3D CNN for AD classification.
 
 Usage:
     python divnet_train.py --config divnet_config.yaml
-    python divnet_train.py --config divnet_config.yaml --test  # test-only mode
+    python divnet_train.py --config divnet_config.yaml --test    # test-only mode
+    python divnet_train.py --config divnet_config.yaml --kfold   # 5-fold CV mode
 """
 
 import argparse
@@ -25,7 +26,13 @@ from sklearn.metrics import (
 import wandb
 
 from divnet_model import DivNet
-from divnet_dataset import build_dataloaders, CLASS_MAP
+from divnet_dataset import (
+    build_dataloaders,
+    build_dataloaders_kfold,
+    collect_file_paths,
+    patient_stratified_kfold,
+    CLASS_MAP,
+)
 
 
 def parse_args():
@@ -36,6 +43,8 @@ def parse_args():
                         help="Run test evaluation only (requires checkpoint)")
     parser.add_argument("--resume", type=str, default=None,
                         help="Path to checkpoint to resume training or run test")
+    parser.add_argument("--kfold", action="store_true",
+                        help="Run k-fold cross-validation mode")
     parser.add_argument("--gpu", type=int, default=0,
                         help="GPU device index")
     return parser.parse_args()
@@ -404,7 +413,7 @@ def train(cfg, device):
     best_ckpt_path = os.path.join(checkpoint_dir, "best_balanced_acc.pth")
     if os.path.exists(best_ckpt_path):
         print("\nEvaluating best model on test set...")
-        checkpoint = torch.load(best_ckpt_path, map_location=device, weights_only=True)
+        checkpoint = torch.load(best_ckpt_path, map_location=device, weights_only=False)
         model.load_state_dict(checkpoint["model_state_dict"])
         test_metrics = validate(model, test_loader, criterion, device,
                                 num_classes=model_cfg["num_classes"])
@@ -422,6 +431,184 @@ def train(cfg, device):
         wandb.finish()
 
     return model
+
+
+def train_kfold(cfg, device):
+    """K-fold cross-validation training loop."""
+    model_cfg = cfg["model"]
+    train_cfg = cfg["training"]
+    save_cfg = cfg["save"]
+    cv_cfg = cfg.get("cross_validation", {})
+    k_folds = cv_cfg.get("k_folds", 5)
+
+    class_names = list(CLASS_MAP.keys())
+    num_classes = model_cfg["num_classes"]
+
+    # Collect all file paths and create folds
+    print("Loading data...")
+    data_cfg = cfg["data"]
+    paths, labels = collect_file_paths(data_cfg["data_root"])
+    if len(paths) == 0:
+        raise RuntimeError(
+            f"No .pt files found in {data_cfg['data_root']}/3d-tensors/{{CN,MCI,AD}}/. "
+            "Check data_root in config."
+        )
+
+    folds_data = patient_stratified_kfold(paths, labels, n_folds=k_folds, seed=data_cfg["seed"])
+
+    # Collect per-fold best metrics
+    all_fold_metrics = []
+    wandb_cfg = cfg.get("wandb", {})
+
+    for fold_idx in range(k_folds):
+        print(f"\n{'#'*60}")
+        print(f"  FOLD {fold_idx + 1} / {k_folds}")
+        print(f"{'#'*60}\n")
+
+        # wandb init per fold
+        if wandb_cfg.get("enabled", True):
+            wandb.login()
+            wandb.init(
+                project=wandb_cfg.get("project", "DivNet AD Classification"),
+                name=f"DivNet fold-{fold_idx}",
+                group="kfold_cv",
+                config={**cfg, "fold": fold_idx},
+                reinit=True,
+            )
+
+        train_loader, val_loader, class_weights = build_dataloaders_kfold(cfg, fold_idx, folds_data)
+        print(f"Class weights: {class_weights.tolist()}")
+
+        # Fresh model
+        model = DivNet(
+            num_filters=model_cfg["num_filters"],
+            num_classes=num_classes,
+            dropout1=model_cfg["dropout1"],
+            dropout2=model_cfg["dropout2"],
+        ).to(device)
+
+        criterion = nn.CrossEntropyLoss(weight=class_weights.to(device))
+        optimizer = torch.optim.SGD(
+            model.parameters(),
+            lr=train_cfg["lr"],
+            momentum=train_cfg["momentum"],
+            weight_decay=train_cfg["weight_decay"],
+        )
+        scheduler = torch.optim.lr_scheduler.MultiStepLR(
+            optimizer,
+            milestones=train_cfg["lr_milestones"],
+            gamma=train_cfg["lr_gamma"],
+        )
+
+        best = {
+            "balanced_accuracy": 0.0,
+            "loss": float("inf"),
+        }
+        best_metrics = None
+        patience_counter = 0
+
+        fold_ckpt_dir = os.path.join(save_cfg["checkpoint_dir"], f"fold_{fold_idx}")
+
+        for epoch in range(1, train_cfg["epochs"] + 1):
+            t0 = time.time()
+
+            train_loss, train_acc = train_one_epoch(
+                model, train_loader, criterion, optimizer, device,
+                grad_clip=train_cfg["grad_clip"],
+            )
+            val_metrics = validate(model, val_loader, criterion, device, num_classes=num_classes)
+
+            scheduler.step()
+            elapsed = time.time() - t0
+            current_lr = optimizer.param_groups[0]["lr"]
+
+            print(f"Fold {fold_idx} Epoch [{epoch:3d}/{train_cfg['epochs']}] "
+                  f"Train Loss: {train_loss:.4f}  Train Acc: {train_acc:.2f}%  |  "
+                  f"Val Loss: {val_metrics['loss']:.4f}  "
+                  f"Val BAcc: {val_metrics['balanced_accuracy']:.2f}%  "
+                  f"Val mAUC: {val_metrics['macro_auc']:.4f}  "
+                  f"LR: {current_lr:.6f}  Time: {elapsed:.1f}s")
+
+            if wandb.run is not None:
+                wandb.log({
+                    "epoch": epoch,
+                    "train_loss": train_loss,
+                    "train_acc": train_acc,
+                    "val_loss": val_metrics["loss"],
+                    "val_acc": val_metrics["accuracy"],
+                    "val_balanced_acc": val_metrics["balanced_accuracy"],
+                    "val_macro_auc": val_metrics["macro_auc"],
+                    "lr": current_lr,
+                })
+
+            # Track best by balanced accuracy
+            if val_metrics["balanced_accuracy"] > best["balanced_accuracy"]:
+                best["balanced_accuracy"] = val_metrics["balanced_accuracy"]
+                best_metrics = val_metrics.copy()
+                save_checkpoint(
+                    {
+                        "epoch": epoch,
+                        "fold": fold_idx,
+                        "model_state_dict": model.state_dict(),
+                        "optimizer_state_dict": optimizer.state_dict(),
+                        "scheduler_state_dict": scheduler.state_dict(),
+                        "val_metrics": val_metrics,
+                    },
+                    os.path.join(fold_ckpt_dir, "best_balanced_acc.pth"),
+                )
+                print(f"  -> New best balanced accuracy: {best['balanced_accuracy']:.2f}%")
+
+            # Early stopping on val loss
+            if val_metrics["loss"] < best["loss"]:
+                best["loss"] = val_metrics["loss"]
+                patience_counter = 0
+            else:
+                patience_counter += 1
+
+            if patience_counter >= train_cfg["early_stopping_patience"]:
+                print(f"\nEarly stopping at epoch {epoch} "
+                      f"(patience={train_cfg['early_stopping_patience']})")
+                break
+
+        # Load best checkpoint and re-evaluate for this fold
+        best_ckpt = os.path.join(fold_ckpt_dir, "best_balanced_acc.pth")
+        if os.path.exists(best_ckpt):
+            ckpt = torch.load(best_ckpt, map_location=device, weights_only=False)
+            model.load_state_dict(ckpt["model_state_dict"])
+            best_metrics = validate(model, val_loader, criterion, device, num_classes=num_classes)
+
+        print_metrics(best_metrics, class_names, phase=f"Fold {fold_idx} Best Val")
+
+        # Collect metrics for summary
+        cm = best_metrics["confusion_matrix"]
+        per_class = compute_per_class_metrics(cm, class_names)
+        fold_record = {
+            "accuracy": best_metrics["accuracy"],
+            "balanced_accuracy": best_metrics["balanced_accuracy"],
+            "macro_auc": best_metrics["macro_auc"],
+        }
+        for i, name in enumerate(class_names):
+            fold_record[f"auc_{name}"] = best_metrics[f"auc_class_{i}"]
+            fold_record[f"sensitivity_{name}"] = per_class[name]["sensitivity"]
+            fold_record[f"specificity_{name}"] = per_class[name]["specificity"]
+        all_fold_metrics.append(fold_record)
+
+        if wandb.run is not None:
+            wandb.finish()
+
+    # ---- Summary across all folds ----
+    print(f"\n{'='*60}")
+    print(f"  {k_folds}-Fold Cross-Validation Summary")
+    print(f"{'='*60}")
+
+    metric_keys = list(all_fold_metrics[0].keys())
+    for key in metric_keys:
+        values = [m[key] for m in all_fold_metrics]
+        mean_val = np.mean(values)
+        std_val = np.std(values)
+        print(f"  {key:30s}: {mean_val:.4f} +/- {std_val:.4f}")
+
+    print(f"{'='*60}\n")
 
 
 def test_only(cfg, checkpoint_path, device):
@@ -443,7 +630,7 @@ def test_only(cfg, checkpoint_path, device):
 
     # Load checkpoint
     print(f"Loading checkpoint: {checkpoint_path}")
-    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=True)
+    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
     model.load_state_dict(checkpoint["model_state_dict"])
     print(f"Checkpoint from epoch {checkpoint.get('epoch', '?')}")
 
@@ -481,6 +668,9 @@ def main():
                 cfg["save"]["checkpoint_dir"], "best_balanced_acc.pth"
             )
         test_only(cfg, checkpoint_path, device)
+    elif args.kfold:
+        # K-fold cross-validation mode
+        train_kfold(cfg, device)
     else:
         # Training mode
         train(cfg, device)
