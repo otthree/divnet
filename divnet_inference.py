@@ -96,11 +96,6 @@ def main():
     args = parse_args()
     cfg = load_config(args.config)
 
-    # Setup logging to file
-    log_path = os.path.join(save_cfg["checkpoint_dir"], "inference_results.txt")
-    tee = TeeLogger(log_path)
-    sys.stdout = tee
-
     # Device
     if torch.cuda.is_available():
         device = torch.device(f"cuda:{args.gpu}")
@@ -117,6 +112,11 @@ def main():
     k_folds = cv_cfg.get("k_folds", 5)
     class_names = list(CLASS_MAP.keys())
     num_classes = model_cfg["num_classes"]
+
+    # Setup logging to file
+    log_path = os.path.join(save_cfg["checkpoint_dir"], "inference_results.txt")
+    tee = TeeLogger(log_path)
+    sys.stdout = tee
 
     # Collect all file paths and reproduce the same 5-fold splits
     print("Loading data...")
