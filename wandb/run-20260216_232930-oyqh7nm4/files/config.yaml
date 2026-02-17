@@ -1,0 +1,94 @@
+_wandb:
+    value:
+        cli_version: 0.25.0
+        e:
+            71vm4cpsoha0accvmjlpfkw1chq02sd0:
+                args:
+                    - --config
+                    - divnet_config.yaml
+                codePath: divnet_train.py
+                codePathLocal: divnet_train.py
+                cpu_count: 64
+                cpu_count_logical: 128
+                cudaVersion: "12.8"
+                disk:
+                    /:
+                        total: "171798691840"
+                        used: "140813754368"
+                email: xfkwl00214xfkwl00214@gmail.com
+                executable: /usr/bin/python3
+                git:
+                    commit: 3675a9ee06ac77f2c0e52420959748241b46f32c
+                    remote: https://github.com/otthree/divnet.git
+                gpu: NVIDIA A100-PCIE-40GB
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "42949672960"
+                      name: NVIDIA A100-PCIE-40GB
+                      uuid: GPU-88a3683e-e470-7c20-527f-15601be85d6f
+                host: b9d8c7d0f4d9
+                memory:
+                    total: "540841746432"
+                os: Linux-6.8.0-65-generic-x86_64-with-glibc2.39
+                program: /workspace/divnet/divnet_train.py
+                python: CPython 3.12.3
+                root: /workspace/divnet
+                startedAt: "2026-02-16T23:29:30.668939Z"
+                writerId: 71vm4cpsoha0accvmjlpfkw1chq02sd0
+        m: []
+        python_version: 3.12.3
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+            "2":
+                - 1
+                - 5
+                - 53
+            "3":
+                - 13
+                - 16
+            "4": 3.12.3
+            "5": 0.25.0
+            "12": 0.25.0
+            "13": linux-x86_64
+data:
+    value:
+        batch_size: 2
+        data_root: /workspace/pumpkinlab-storage-dhl
+        num_workers: 4
+        seed: 42
+        test_ratio: 0.15
+        train_ratio: 0.7
+        val_batch_size: 1
+        val_ratio: 0.15
+model:
+    value:
+        dropout1: 0.5
+        dropout2: 0.3
+        num_classes: 3
+        num_filters: 64
+save:
+    value:
+        checkpoint_dir: ./checkpoints/divnet
+training:
+    value:
+        early_stopping_patience: 20
+        epochs: 100
+        grad_clip: 1
+        lr: 0.001
+        lr_gamma: 0.1
+        lr_milestones:
+            - 30
+            - 60
+            - 80
+        momentum: 0.9
+        optimizer: SGD
+        weight_decay: 0.0001
+wandb:
+    value:
+        enabled: true
+        project: DivNet AD Classification

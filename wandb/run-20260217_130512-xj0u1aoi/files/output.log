@@ -1,0 +1,82 @@
+Class weights: [0.8671497702598572, 1.0167090892791748, 1.1584382057189941]
+Fold 4 Epoch [  1/100] Train Loss: 1.2905  Train Acc: 34.04%  |  Val Loss: 1.1151  Val BAcc: 33.33%  Val mAUC: 0.5999  LR: 0.001000  Time: 261.1s
+  -> New best balanced accuracy: 33.33%
+Fold 4 Epoch [  2/100] Train Loss: 1.1621  Train Acc: 33.68%  |  Val Loss: 1.1379  Val BAcc: 33.33%  Val mAUC: 0.5831  LR: 0.001000  Time: 257.4s
+Fold 4 Epoch [  3/100] Train Loss: 1.1361  Train Acc: 33.20%  |  Val Loss: 1.1177  Val BAcc: 33.33%  Val mAUC: 0.6222  LR: 0.001000  Time: 258.4s
+Fold 4 Epoch [  4/100] Train Loss: 1.1225  Train Acc: 34.04%  |  Val Loss: 1.0892  Val BAcc: 38.68%  Val mAUC: 0.6058  LR: 0.001000  Time: 260.4s
+  -> New best balanced accuracy: 38.68%
+Fold 4 Epoch [  5/100] Train Loss: 1.1046  Train Acc: 35.52%  |  Val Loss: 1.0955  Val BAcc: 33.33%  Val mAUC: 0.6347  LR: 0.001000  Time: 255.6s
+Fold 4 Epoch [  6/100] Train Loss: 1.0992  Train Acc: 36.24%  |  Val Loss: 1.0632  Val BAcc: 46.27%  Val mAUC: 0.6562  LR: 0.001000  Time: 254.2s
+  -> New best balanced accuracy: 46.27%
+Fold 4 Epoch [  7/100] Train Loss: 1.0785  Train Acc: 39.44%  |  Val Loss: 1.0021  Val BAcc: 47.16%  Val mAUC: 0.6666  LR: 0.001000  Time: 258.7s
+  -> New best balanced accuracy: 47.16%
+Fold 4 Epoch [  8/100] Train Loss: 1.0501  Train Acc: 44.43%  |  Val Loss: 0.9607  Val BAcc: 50.08%  Val mAUC: 0.7033  LR: 0.001000  Time: 257.6s
+  -> New best balanced accuracy: 50.08%
+Fold 4 Epoch [  9/100] Train Loss: 1.0225  Train Acc: 47.97%  |  Val Loss: 0.9090  Val BAcc: 55.36%  Val mAUC: 0.7368  LR: 0.001000  Time: 261.3s
+  -> New best balanced accuracy: 55.36%
+Fold 4 Epoch [ 10/100] Train Loss: 0.9556  Train Acc: 53.65%  |  Val Loss: 0.8456  Val BAcc: 59.90%  Val mAUC: 0.7876  LR: 0.001000  Time: 258.8s
+  -> New best balanced accuracy: 59.90%
+Fold 4 Epoch [ 11/100] Train Loss: 0.8963  Train Acc: 58.36%  |  Val Loss: 0.7741  Val BAcc: 66.43%  Val mAUC: 0.8231  LR: 0.001000  Time: 256.1s
+  -> New best balanced accuracy: 66.43%
+Fold 4 Epoch [ 12/100] Train Loss: 0.8705  Train Acc: 61.92%  |  Val Loss: 0.7470  Val BAcc: 70.29%  Val mAUC: 0.8552  LR: 0.001000  Time: 259.3s
+  -> New best balanced accuracy: 70.29%
+Fold 4 Epoch [ 13/100] Train Loss: 0.8375  Train Acc: 67.13%  |  Val Loss: 0.7748  Val BAcc: 70.68%  Val mAUC: 0.8795  LR: 0.001000  Time: 252.4s
+  -> New best balanced accuracy: 70.68%
+Fold 4 Epoch [ 14/100] Train Loss: 0.7605  Train Acc: 70.53%  |  Val Loss: 0.7282  Val BAcc: 76.33%  Val mAUC: 0.8952  LR: 0.001000  Time: 262.7s
+  -> New best balanced accuracy: 76.33%
+Fold 4 Epoch [ 15/100] Train Loss: 0.7132  Train Acc: 76.16%  |  Val Loss: 0.8559  Val BAcc: 74.60%  Val mAUC: 0.9076  LR: 0.001000  Time: 258.7s
+Fold 4 Epoch [ 16/100] Train Loss: 0.6788  Train Acc: 79.58%  |  Val Loss: 1.1428  Val BAcc: 70.00%  Val mAUC: 0.9049  LR: 0.001000  Time: 267.5s
+Fold 4 Epoch [ 17/100] Train Loss: 0.6270  Train Acc: 82.48%  |  Val Loss: 0.9649  Val BAcc: 77.46%  Val mAUC: 0.9250  LR: 0.001000  Time: 267.8s
+  -> New best balanced accuracy: 77.46%
+Fold 4 Epoch [ 18/100] Train Loss: 0.5497  Train Acc: 85.74%  |  Val Loss: 0.8872  Val BAcc: 81.74%  Val mAUC: 0.9366  LR: 0.001000  Time: 267.7s
+  -> New best balanced accuracy: 81.74%
+Fold 4 Epoch [ 19/100] Train Loss: 0.4500  Train Acc: 89.28%  |  Val Loss: 0.9752  Val BAcc: 83.22%  Val mAUC: 0.9452  LR: 0.001000  Time: 260.1s
+  -> New best balanced accuracy: 83.22%
+Fold 4 Epoch [ 20/100] Train Loss: 0.4128  Train Acc: 89.58%  |  Val Loss: 1.0277  Val BAcc: 84.00%  Val mAUC: 0.9443  LR: 0.001000  Time: 259.2s
+  -> New best balanced accuracy: 84.00%
+Fold 4 Epoch [ 21/100] Train Loss: 0.3901  Train Acc: 91.56%  |  Val Loss: 1.0336  Val BAcc: 84.39%  Val mAUC: 0.9511  LR: 0.001000  Time: 260.6s
+  -> New best balanced accuracy: 84.39%
+Fold 4 Epoch [ 22/100] Train Loss: 0.3291  Train Acc: 92.81%  |  Val Loss: 1.2100  Val BAcc: 83.41%  Val mAUC: 0.9447  LR: 0.001000  Time: 255.8s
+Fold 4 Epoch [ 23/100] Train Loss: 0.2635  Train Acc: 94.15%  |  Val Loss: 1.0072  Val BAcc: 86.36%  Val mAUC: 0.9568  LR: 0.001000  Time: 254.3s
+  -> New best balanced accuracy: 86.36%
+Fold 4 Epoch [ 24/100] Train Loss: 0.2432  Train Acc: 95.07%  |  Val Loss: 1.1174  Val BAcc: 86.33%  Val mAUC: 0.9572  LR: 0.001000  Time: 265.7s
+Fold 4 Epoch [ 25/100] Train Loss: 0.2793  Train Acc: 95.15%  |  Val Loss: 1.0464  Val BAcc: 86.11%  Val mAUC: 0.9630  LR: 0.001000  Time: 253.3s
+Fold 4 Epoch [ 26/100] Train Loss: 0.2020  Train Acc: 96.38%  |  Val Loss: 1.1689  Val BAcc: 85.50%  Val mAUC: 0.9593  LR: 0.001000  Time: 253.6s
+Fold 4 Epoch [ 27/100] Train Loss: 0.1734  Train Acc: 96.35%  |  Val Loss: 1.8478  Val BAcc: 79.63%  Val mAUC: 0.9438  LR: 0.001000  Time: 251.5s
+Fold 4 Epoch [ 28/100] Train Loss: 0.1594  Train Acc: 96.38%  |  Val Loss: 1.2551  Val BAcc: 87.14%  Val mAUC: 0.9622  LR: 0.001000  Time: 257.4s
+  -> New best balanced accuracy: 87.14%
+Fold 4 Epoch [ 29/100] Train Loss: 0.1410  Train Acc: 97.21%  |  Val Loss: 1.3722  Val BAcc: 84.09%  Val mAUC: 0.9522  LR: 0.001000  Time: 261.9s
+Fold 4 Epoch [ 30/100] Train Loss: 0.1174  Train Acc: 97.35%  |  Val Loss: 1.3273  Val BAcc: 85.53%  Val mAUC: 0.9559  LR: 0.000100  Time: 259.6s
+Fold 4 Epoch [ 31/100] Train Loss: 0.0779  Train Acc: 98.36%  |  Val Loss: 1.2592  Val BAcc: 88.37%  Val mAUC: 0.9644  LR: 0.000100  Time: 261.9s
+  -> New best balanced accuracy: 88.37%
+Fold 4 Epoch [ 32/100] Train Loss: 0.0572  Train Acc: 98.61%  |  Val Loss: 1.2645  Val BAcc: 87.35%  Val mAUC: 0.9643  LR: 0.000100  Time: 257.9s
+Fold 4 Epoch [ 33/100] Train Loss: 0.0371  Train Acc: 99.05%  |  Val Loss: 1.2433  Val BAcc: 88.01%  Val mAUC: 0.9648  LR: 0.000100  Time: 259.1s
+Fold 4 Epoch [ 34/100] Train Loss: 0.0618  Train Acc: 98.80%  |  Val Loss: 1.2275  Val BAcc: 88.30%  Val mAUC: 0.9649  LR: 0.000100  Time: 260.0s
+
+Early stopping at epoch 34 (patience=20)
+
+============================================================
+  Fold 4 Best Val Results
+============================================================
+  Loss:              1.2592
+  Accuracy:          88.96%
+  Balanced Accuracy: 88.37%
+  Micro AUC:         0.9666
+  Macro AUC:         0.9644
+  AUC (CN):         0.9825
+  AUC (MCI):         0.9392
+  AUC (AD):         0.9714
+
+  Confusion Matrix:
+               CN    MCI     AD
+        CN    326     18      1
+       MCI     18    260     16
+        AD      2     44    212
+
+  Per-class metrics:
+    CN: Sensitivity=0.9449  Specificity=0.9638
+    MCI: Sensitivity=0.8844  Specificity=0.8972
+    AD: Sensitivity=0.8217  Specificity=0.9734
+============================================================
+
+  Confusion matrix saved to ./checkpoints/divnet/figures/fold_4_confusion_matrix.png

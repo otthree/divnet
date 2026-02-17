@@ -1,0 +1,131 @@
+
+Starting training for 100 epochs...
+Device: cuda:0
+Batch size: 2
+LR: 0.001, Milestones: [30, 60, 80]
+
+Epoch [  1/100] Train Loss: 1.3380  Train Acc: 32.99%  |  Val Loss: 1.0935  Val Acc: 33.28%  Val BAcc: 36.45%  Val mAUC: 0.6202  LR: 0.001000  Time: 226.7s
+  -> New best accuracy: 33.28%
+  -> New best balanced accuracy: 36.45%
+  -> New best macro AUC: 0.6202
+  -> New lowest loss: 1.0935
+Epoch [  2/100] Train Loss: 1.1699  Train Acc: 35.13%  |  Val Loss: 1.1464  Val Acc: 38.48%  Val BAcc: 33.33%  Val mAUC: 0.5124  LR: 0.001000  Time: 221.4s
+  -> New best accuracy: 38.48%
+Epoch [  3/100] Train Loss: 1.1375  Train Acc: 33.79%  |  Val Loss: 1.1047  Val Acc: 30.91%  Val BAcc: 35.27%  Val mAUC: 0.6193  LR: 0.001000  Time: 224.7s
+Epoch [  4/100] Train Loss: 1.1210  Train Acc: 33.92%  |  Val Loss: 1.0993  Val Acc: 28.68%  Val BAcc: 33.33%  Val mAUC: 0.6754  LR: 0.001000  Time: 226.1s
+  -> New best macro AUC: 0.6754
+Epoch [  5/100] Train Loss: 1.1093  Train Acc: 34.46%  |  Val Loss: 1.1062  Val Acc: 28.68%  Val BAcc: 33.33%  Val mAUC: 0.4896  LR: 0.001000  Time: 223.3s
+Epoch [  6/100] Train Loss: 1.1042  Train Acc: 35.22%  |  Val Loss: 1.0704  Val Acc: 50.22%  Val BAcc: 49.35%  Val mAUC: 0.6585  LR: 0.001000  Time: 218.2s
+  -> New best accuracy: 50.22%
+  -> New best balanced accuracy: 49.35%
+  -> New lowest loss: 1.0704
+Epoch [  7/100] Train Loss: 1.1107  Train Acc: 33.34%  |  Val Loss: 1.0503  Val Acc: 40.12%  Val BAcc: 41.68%  Val mAUC: 0.7214  LR: 0.001000  Time: 218.8s
+  -> New best macro AUC: 0.7214
+  -> New lowest loss: 1.0503
+Epoch [  8/100] Train Loss: 1.0918  Train Acc: 40.29%  |  Val Loss: 1.0540  Val Acc: 43.24%  Val BAcc: 46.35%  Val mAUC: 0.6867  LR: 0.001000  Time: 219.8s
+Epoch [  9/100] Train Loss: 1.0705  Train Acc: 40.61%  |  Val Loss: 0.9744  Val Acc: 53.34%  Val BAcc: 54.13%  Val mAUC: 0.7018  LR: 0.001000  Time: 221.9s
+  -> New best accuracy: 53.34%
+  -> New best balanced accuracy: 54.13%
+  -> New lowest loss: 0.9744
+Epoch [ 10/100] Train Loss: 1.0312  Train Acc: 45.03%  |  Val Loss: 0.8918  Val Acc: 57.80%  Val BAcc: 56.79%  Val mAUC: 0.7545  LR: 0.001000  Time: 222.0s
+  -> New best accuracy: 57.80%
+  -> New best balanced accuracy: 56.79%
+  -> New best macro AUC: 0.7545
+  -> New lowest loss: 0.8918
+Epoch [ 11/100] Train Loss: 0.9658  Train Acc: 51.97%  |  Val Loss: 0.8485  Val Acc: 59.44%  Val BAcc: 57.50%  Val mAUC: 0.7881  LR: 0.001000  Time: 220.4s
+  -> New best accuracy: 59.44%
+  -> New best balanced accuracy: 57.50%
+  -> New best macro AUC: 0.7881
+  -> New lowest loss: 0.8485
+Epoch [ 12/100] Train Loss: 0.9340  Train Acc: 55.86%  |  Val Loss: 0.7715  Val Acc: 65.08%  Val BAcc: 64.79%  Val mAUC: 0.8109  LR: 0.001000  Time: 219.6s
+  -> New best accuracy: 65.08%
+  -> New best balanced accuracy: 64.79%
+  -> New best macro AUC: 0.8109
+  -> New lowest loss: 0.7715
+Epoch [ 13/100] Train Loss: 0.8605  Train Acc: 63.12%  |  Val Loss: 0.8063  Val Acc: 65.53%  Val BAcc: 64.14%  Val mAUC: 0.8487  LR: 0.001000  Time: 220.6s
+  -> New best accuracy: 65.53%
+  -> New best macro AUC: 0.8487
+Epoch [ 14/100] Train Loss: 0.8323  Train Acc: 66.24%  |  Val Loss: 0.6719  Val Acc: 69.99%  Val BAcc: 70.47%  Val mAUC: 0.8691  LR: 0.001000  Time: 223.8s
+  -> New best accuracy: 69.99%
+  -> New best balanced accuracy: 70.47%
+  -> New best macro AUC: 0.8691
+  -> New lowest loss: 0.6719
+Epoch [ 15/100] Train Loss: 0.7451  Train Acc: 70.57%  |  Val Loss: 0.7314  Val Acc: 71.47%  Val BAcc: 69.80%  Val mAUC: 0.8904  LR: 0.001000  Time: 219.4s
+  -> New best accuracy: 71.47%
+  -> New best macro AUC: 0.8904
+Epoch [ 16/100] Train Loss: 0.7147  Train Acc: 74.87%  |  Val Loss: 0.6113  Val Acc: 77.86%  Val BAcc: 77.16%  Val mAUC: 0.9134  LR: 0.001000  Time: 219.7s
+  -> New best accuracy: 77.86%
+  -> New best balanced accuracy: 77.16%
+  -> New best macro AUC: 0.9134
+  -> New lowest loss: 0.6113
+Epoch [ 17/100] Train Loss: 0.6474  Train Acc: 78.12%  |  Val Loss: 0.9007  Val Acc: 74.89%  Val BAcc: 75.13%  Val mAUC: 0.9021  LR: 0.001000  Time: 216.9s
+Epoch [ 18/100] Train Loss: 0.6283  Train Acc: 81.40%  |  Val Loss: 0.7569  Val Acc: 79.49%  Val BAcc: 79.28%  Val mAUC: 0.9281  LR: 0.001000  Time: 221.4s
+  -> New best accuracy: 79.49%
+  -> New best balanced accuracy: 79.28%
+  -> New best macro AUC: 0.9281
+Epoch [ 19/100] Train Loss: 0.5259  Train Acc: 84.71%  |  Val Loss: 0.7659  Val Acc: 82.17%  Val BAcc: 82.13%  Val mAUC: 0.9335  LR: 0.001000  Time: 216.8s
+  -> New best accuracy: 82.17%
+  -> New best balanced accuracy: 82.13%
+  -> New best macro AUC: 0.9335
+Epoch [ 20/100] Train Loss: 0.4688  Train Acc: 87.32%  |  Val Loss: 0.7995  Val Acc: 82.91%  Val BAcc: 82.26%  Val mAUC: 0.9408  LR: 0.001000  Time: 222.4s
+  -> New best accuracy: 82.91%
+  -> New best balanced accuracy: 82.26%
+  -> New best macro AUC: 0.9408
+Epoch [ 21/100] Train Loss: 0.3868  Train Acc: 89.84%  |  Val Loss: 0.7426  Val Acc: 85.29%  Val BAcc: 84.61%  Val mAUC: 0.9528  LR: 0.001000  Time: 220.2s
+  -> New best accuracy: 85.29%
+  -> New best balanced accuracy: 84.61%
+  -> New best macro AUC: 0.9528
+Epoch [ 22/100] Train Loss: 0.3586  Train Acc: 91.27%  |  Val Loss: 0.8928  Val Acc: 83.36%  Val BAcc: 82.32%  Val mAUC: 0.9499  LR: 0.001000  Time: 219.9s
+Epoch [ 23/100] Train Loss: 0.2979  Train Acc: 92.80%  |  Val Loss: 1.4018  Val Acc: 79.79%  Val BAcc: 78.18%  Val mAUC: 0.9382  LR: 0.001000  Time: 222.0s
+Epoch [ 24/100] Train Loss: 0.2391  Train Acc: 94.43%  |  Val Loss: 0.9653  Val Acc: 83.80%  Val BAcc: 82.82%  Val mAUC: 0.9549  LR: 0.001000  Time: 221.8s
+  -> New best macro AUC: 0.9549
+Epoch [ 25/100] Train Loss: 0.2665  Train Acc: 94.04%  |  Val Loss: 0.9466  Val Acc: 86.92%  Val BAcc: 86.36%  Val mAUC: 0.9546  LR: 0.001000  Time: 222.2s
+  -> New best accuracy: 86.92%
+  -> New best balanced accuracy: 86.36%
+Epoch [ 26/100] Train Loss: 0.1991  Train Acc: 95.73%  |  Val Loss: 0.8343  Val Acc: 86.78%  Val BAcc: 86.32%  Val mAUC: 0.9597  LR: 0.001000  Time: 222.7s
+  -> New best macro AUC: 0.9597
+Epoch [ 27/100] Train Loss: 0.1954  Train Acc: 95.92%  |  Val Loss: 1.0451  Val Acc: 85.74%  Val BAcc: 84.65%  Val mAUC: 0.9608  LR: 0.001000  Time: 219.2s
+  -> New best macro AUC: 0.9608
+Epoch [ 28/100] Train Loss: 0.1298  Train Acc: 97.04%  |  Val Loss: 1.2418  Val Acc: 84.10%  Val BAcc: 84.13%  Val mAUC: 0.9479  LR: 0.001000  Time: 221.4s
+Epoch [ 29/100] Train Loss: 0.1711  Train Acc: 96.82%  |  Val Loss: 1.2318  Val Acc: 85.44%  Val BAcc: 84.21%  Val mAUC: 0.9582  LR: 0.001000  Time: 220.1s
+Epoch [ 30/100] Train Loss: 0.1244  Train Acc: 97.26%  |  Val Loss: 1.5837  Val Acc: 83.66%  Val BAcc: 82.01%  Val mAUC: 0.9535  LR: 0.000100  Time: 224.0s
+Epoch [ 31/100] Train Loss: 0.0789  Train Acc: 98.15%  |  Val Loss: 1.0882  Val Acc: 87.22%  Val BAcc: 86.33%  Val mAUC: 0.9612  LR: 0.000100  Time: 223.2s
+  -> New best accuracy: 87.22%
+  -> New best macro AUC: 0.9612
+Epoch [ 32/100] Train Loss: 0.0704  Train Acc: 98.31%  |  Val Loss: 1.0772  Val Acc: 86.92%  Val BAcc: 86.07%  Val mAUC: 0.9611  LR: 0.000100  Time: 219.6s
+Epoch [ 33/100] Train Loss: 0.0263  Train Acc: 98.89%  |  Val Loss: 1.1036  Val Acc: 87.07%  Val BAcc: 86.42%  Val mAUC: 0.9611  LR: 0.000100  Time: 219.9s
+  -> New best balanced accuracy: 86.42%
+Epoch [ 34/100] Train Loss: 0.0607  Train Acc: 98.44%  |  Val Loss: 1.0721  Val Acc: 86.63%  Val BAcc: 85.86%  Val mAUC: 0.9613  LR: 0.000100  Time: 217.1s
+  -> New best macro AUC: 0.9613
+Epoch [ 35/100] Train Loss: 0.0351  Train Acc: 98.98%  |  Val Loss: 1.1038  Val Acc: 87.22%  Val BAcc: 86.53%  Val mAUC: 0.9619  LR: 0.000100  Time: 220.5s
+  -> New best balanced accuracy: 86.53%
+  -> New best macro AUC: 0.9619
+Epoch [ 36/100] Train Loss: 0.0355  Train Acc: 98.95%  |  Val Loss: 1.0989  Val Acc: 87.22%  Val BAcc: 86.51%  Val mAUC: 0.9615  LR: 0.000100  Time: 219.9s
+
+Early stopping triggered after 36 epochs (patience=20)
+
+============================================================
+Training Complete
+============================================================
+Best Accuracy:          87.22%
+Best Balanced Accuracy: 86.53%
+Best Macro AUC:         0.9619
+Lowest Val Loss:        0.6113
+
+Evaluating best model on test set...
+Traceback (most recent call last):
+  File "/workspace/divnet/divnet_train.py", line 490, in <module>
+    main()
+  File "/workspace/divnet/divnet_train.py", line 486, in main
+    train(cfg, device)
+  File "/workspace/divnet/divnet_train.py", line 407, in train
+    checkpoint = torch.load(best_ckpt_path, map_location=device, weights_only=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 1548, in load
+    raise pickle.UnpicklingError(_get_wo_message(str(e))) from None
+_pickle.UnpicklingError: Weights only load failed. This file can still be loaded, to do so you have two options, [1mdo those steps only if you trust the source of the checkpoint[0m.
+	(1) In PyTorch 2.6, we changed the default value of the `weights_only` argument in `torch.load` from `False` to `True`. Re-running `torch.load` with `weights_only` set to `False` will likely succeed, but it can result in arbitrary code execution. Do it only if you got the file from a trusted source.
+	(2) Alternatively, to load with `weights_only=True` please check the recommended steps in the following error message.
+	WeightsUnpickler error: Unsupported global: GLOBAL numpy._core.multiarray.scalar was not an allowed global by default. Please use `torch.serialization.add_safe_globals([numpy._core.multiarray.scalar])` or the `torch.serialization.safe_globals([numpy._core.multiarray.scalar])` context manager to allowlist this global if you trust this class/function.
+
+Check the documentation of torch.load to learn more about types accepted by default with weights_only https://pytorch.org/docs/stable/generated/torch.load.html.

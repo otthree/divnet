@@ -1,0 +1,45 @@
+{
+  "os":  "Linux-6.8.0-65-generic-x86_64-with-glibc2.39",
+  "python":  "CPython 3.12.3",
+  "startedAt":  "2026-02-17T03:12:46.867282Z",
+  "args":  [
+    "--config",
+    "divnet_config.yaml",
+    "--kfold"
+  ],
+  "program":  "/workspace/divnet/divnet_train.py",
+  "codePath":  "divnet_train.py",
+  "codePathLocal":  "divnet_train.py",
+  "git":  {
+    "remote":  "https://github.com/otthree/divnet.git",
+    "commit":  "2b8affd18b4dba328a0554c595a63c89b1e40da0"
+  },
+  "email":  "xfkwl00214xfkwl00214@gmail.com",
+  "root":  "/workspace/divnet",
+  "host":  "b9d8c7d0f4d9",
+  "executable":  "/usr/bin/python3",
+  "cpu_count":  64,
+  "cpu_count_logical":  128,
+  "gpu":  "NVIDIA A100-PCIE-40GB",
+  "gpu_count":  1,
+  "disk":  {
+    "/":  {
+      "total":  "171798691840",
+      "used":  "141087064064"
+    }
+  },
+  "memory":  {
+    "total":  "540841746432"
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA A100-PCIE-40GB",
+      "memoryTotal":  "42949672960",
+      "cudaCores":  6912,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-88a3683e-e470-7c20-527f-15601be85d6f"
+    }
+  ],
+  "cudaVersion":  "12.8",
+  "writerId":  "c9aov4h9kurwbta2mvwgmjken6qtflko"
+}
