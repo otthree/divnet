@@ -17,12 +17,33 @@ Usage:
 
 import argparse
 import os
+import sys
 from collections import defaultdict
 
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from sklearn.metrics import confusion_matrix
+
+
+class TeeLogger:
+    """Write to both stdout and a log file simultaneously."""
+    def __init__(self, filepath):
+        self.terminal = sys.stdout
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        self.log = open(filepath, "w")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
+
+    def close(self):
+        self.log.close()
+        sys.stdout = self.terminal
 
 from divnet_dataset import (
     collect_file_paths,
@@ -74,6 +95,11 @@ def run_inference(model, loader, device):
 def main():
     args = parse_args()
     cfg = load_config(args.config)
+
+    # Setup logging to file
+    log_path = os.path.join(save_cfg["checkpoint_dir"], "inference_results.txt")
+    tee = TeeLogger(log_path)
+    sys.stdout = tee
 
     # Device
     if torch.cuda.is_available():
@@ -258,6 +284,10 @@ def main():
     print(f"  Total unique CR candidate patients: "
           f"{len(set(g1_patients + g2_patients + g3_patients))}")
     print(f"{'='*60}")
+
+
+    tee.close()
+    print(f"Results saved to {log_path}")
 
 
 if __name__ == "__main__":
