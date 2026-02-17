@@ -11,8 +11,8 @@ CR Groups:
     Group 3: True CN(0) -> Predicted AD(2)
 
 Usage:
-    python divnet_inference.py --config divnet_config.yaml
-    python divnet_inference.py --config divnet_config.yaml --gpu 0
+    python3 divnet_inference.py --config divnet_config.yaml
+    python3 divnet_inference.py --config divnet_config.yaml --gpu 0
 """
 
 import argparse
