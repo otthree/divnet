@@ -21,6 +21,7 @@ import sys
 from collections import defaultdict
 
 import numpy as np
+import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 from sklearn.metrics import confusion_matrix
@@ -65,6 +66,10 @@ def parse_args():
         help="Path to YAML config file",
     )
     parser.add_argument("--gpu", type=int, default=0, help="GPU device index")
+    parser.add_argument(
+        "--scan_csv", type=str, default=None,
+        help="Path to scan list CSV with pt_index and patient_id columns",
+    )
     return parser.parse_args()
 
 
@@ -118,6 +123,20 @@ def main():
     tee = TeeLogger(log_path)
     sys.stdout = tee
 
+    # Load scan CSV for pt_index -> ADNI patient_id mapping
+    pt_to_adni = {}
+    if args.scan_csv and os.path.exists(args.scan_csv):
+        scan_df = pd.read_csv(args.scan_csv)
+        if "pt_index" in scan_df.columns and "patient_id" in scan_df.columns:
+            pt_to_adni = dict(zip(
+                scan_df["pt_index"].astype(str), scan_df["patient_id"]
+            ))
+            print(f"Loaded scan CSV: {len(pt_to_adni)} entries from {args.scan_csv}")
+        else:
+            print(f"WARNING: scan CSV missing pt_index or patient_id columns.")
+    elif args.scan_csv:
+        print(f"WARNING: scan CSV not found: {args.scan_csv}")
+
     # Collect all file paths and reproduce the same 5-fold splits
     print("Loading data...")
     paths, labels = collect_file_paths(data_cfg["data_root"])
@@ -132,7 +151,7 @@ def main():
     )
 
     # CR group collectors (union across folds)
-    # Each group stores tuples of (patient_id, image_id)
+    # Each group stores tuples of (pt_index, adni_id)
     cr_group1_all = []  # True CN -> Pred MCI
     cr_group2_all = []  # True MCI -> Pred AD
     cr_group3_all = []  # True CN -> Pred AD
@@ -202,29 +221,29 @@ def main():
             true_lbl = true_labels[i]
             pred_lbl = preds[i]
             fpath = val_paths[i]
-            patient_id = extract_patient_id(fpath)
-            image_id = os.path.splitext(os.path.basename(fpath))[0]
+            pt_idx = os.path.splitext(os.path.basename(fpath))[0]
+            adni_id = pt_to_adni.get(pt_idx, "N/A")
 
             if true_lbl == 0 and pred_lbl == 1:
-                fold_g1.append((patient_id, image_id))
+                fold_g1.append((pt_idx, adni_id))
             elif true_lbl == 1 and pred_lbl == 2:
-                fold_g2.append((patient_id, image_id))
+                fold_g2.append((pt_idx, adni_id))
             elif true_lbl == 0 and pred_lbl == 2:
-                fold_g3.append((patient_id, image_id))
+                fold_g3.append((pt_idx, adni_id))
 
         # Print fold-level CR candidates
         print(f"\n  CR Candidates (Fold {fold_idx}):")
         print(f"    Group 1 (CN -> MCI): {len(fold_g1)} subjects")
-        for pid, iid in fold_g1:
-            print(f"      patient={pid}  image={iid}")
+        for pt_idx, adni_id in fold_g1:
+            print(f"      pt_index={pt_idx}  adni_id={adni_id}")
 
         print(f"    Group 2 (MCI -> AD): {len(fold_g2)} subjects")
-        for pid, iid in fold_g2:
-            print(f"      patient={pid}  image={iid}")
+        for pt_idx, adni_id in fold_g2:
+            print(f"      pt_index={pt_idx}  adni_id={adni_id}")
 
         print(f"    Group 3 (CN -> AD): {len(fold_g3)} subjects")
-        for pid, iid in fold_g3:
-            print(f"      patient={pid}  image={iid}")
+        for pt_idx, adni_id in fold_g3:
+            print(f"      pt_index={pt_idx}  adni_id={adni_id}")
 
         cr_group1_all.extend(fold_g1)
         cr_group2_all.extend(fold_g2)
@@ -240,14 +259,15 @@ def main():
     print(f"  CR Candidate Summary (All Folds)")
     print(f"{'='*60}")
 
-    # Deduplicate by patient ID (keep unique patient IDs per group)
+    # Deduplicate by ADNI patient ID (keep unique per group)
     def unique_patients(group):
         seen = set()
         unique = []
-        for pid, iid in group:
-            if pid not in seen:
-                seen.add(pid)
-                unique.append(pid)
+        for pt_idx, adni_id in group:
+            key = adni_id if adni_id != "N/A" else pt_idx
+            if key not in seen:
+                seen.add(key)
+                unique.append((pt_idx, adni_id))
         return unique
 
     g1_patients = unique_patients(cr_group1_all)
@@ -255,34 +275,36 @@ def main():
     g3_patients = unique_patients(cr_group3_all)
 
     print(f"\n  Group 1 (True CN -> Pred MCI): {len(g1_patients)} unique patients")
-    for pid in g1_patients:
-        print(f"    {pid}")
+    for pt_idx, adni_id in g1_patients:
+        print(f"    pt_index={pt_idx}  adni_id={adni_id}")
 
     print(f"\n  Group 2 (True MCI -> Pred AD): {len(g2_patients)} unique patients")
-    for pid in g2_patients:
-        print(f"    {pid}")
+    for pt_idx, adni_id in g2_patients:
+        print(f"    pt_index={pt_idx}  adni_id={adni_id}")
 
     print(f"\n  Group 3 (True CN -> Pred AD): {len(g3_patients)} unique patients")
-    for pid in g3_patients:
-        print(f"    {pid}")
+    for pt_idx, adni_id in g3_patients:
+        print(f"    pt_index={pt_idx}  adni_id={adni_id}")
 
-    # Also print all image-level IDs
+    # Image-level detail
     print(f"\n  --- Image-level detail ---")
     print(f"\n  Group 1 (CN -> MCI): {len(cr_group1_all)} images")
-    for pid, iid in cr_group1_all:
-        print(f"    patient={pid}  image={iid}")
+    for pt_idx, adni_id in cr_group1_all:
+        print(f"    pt_index={pt_idx}  adni_id={adni_id}")
 
     print(f"\n  Group 2 (MCI -> AD): {len(cr_group2_all)} images")
-    for pid, iid in cr_group2_all:
-        print(f"    patient={pid}  image={iid}")
+    for pt_idx, adni_id in cr_group2_all:
+        print(f"    pt_index={pt_idx}  adni_id={adni_id}")
 
     print(f"\n  Group 3 (CN -> AD): {len(cr_group3_all)} images")
-    for pid, iid in cr_group3_all:
-        print(f"    patient={pid}  image={iid}")
+    for pt_idx, adni_id in cr_group3_all:
+        print(f"    pt_index={pt_idx}  adni_id={adni_id}")
 
+    all_unique = set()
+    for _, adni_id in g1_patients + g2_patients + g3_patients:
+        all_unique.add(adni_id if adni_id != "N/A" else _)
     print(f"\n{'='*60}")
-    print(f"  Total unique CR candidate patients: "
-          f"{len(set(g1_patients + g2_patients + g3_patients))}")
+    print(f"  Total unique CR candidate patients: {len(all_unique)}")
     print(f"{'='*60}")
 
 
