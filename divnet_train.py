@@ -21,6 +21,7 @@ import yaml
 from sklearn.metrics import (
     balanced_accuracy_score,
     confusion_matrix,
+    f1_score,
     roc_auc_score,
 )
 
@@ -124,6 +125,11 @@ def validate(model, loader, criterion, device, num_classes=3):
     epoch_acc = 100.0 * np.sum(all_preds == all_labels) / total
     balanced_acc = 100.0 * balanced_accuracy_score(all_labels, all_preds)
 
+    # F1 scores
+    f1_macro = f1_score(all_labels, all_preds, average="macro", zero_division=0)
+    f1_weighted = f1_score(all_labels, all_preds, average="weighted", zero_division=0)
+    f1_per_class = f1_score(all_labels, all_preds, average=None, zero_division=0)
+
     # Per-class and overall AUC
     auc_results = compute_auc(all_labels, all_probs, num_classes)
 
@@ -134,8 +140,12 @@ def validate(model, loader, criterion, device, num_classes=3):
         "loss": epoch_loss,
         "accuracy": epoch_acc,
         "balanced_accuracy": balanced_acc,
+        "f1_macro": f1_macro,
+        "f1_weighted": f1_weighted,
         "confusion_matrix": cm,
     }
+    for c in range(num_classes):
+        metrics[f"f1_class_{c}"] = f1_per_class[c] if c < len(f1_per_class) else 0.0
     metrics.update(auc_results)
 
     return metrics
@@ -212,28 +222,32 @@ def plot_confusion_matrix(cm, class_names, phase="Validation", save_dir="figures
     """Plot and save a confusion matrix as a heatmap."""
     os.makedirs(save_dir, exist_ok=True)
 
+    # Flip rows so y-axis goes CN(bottom) -> MCI -> AD(top)
+    cm_flipped = cm[::-1, :]
+    class_names_y = list(reversed(class_names))
+
     fig, ax = plt.subplots(figsize=(6, 5))
-    im = ax.imshow(cm, interpolation="nearest", cmap=plt.cm.Blues)
+    im = ax.imshow(cm_flipped, interpolation="nearest", cmap=plt.cm.Blues)
     ax.figure.colorbar(im, ax=ax)
 
     ax.set(
         xticks=np.arange(cm.shape[1]),
         yticks=np.arange(cm.shape[0]),
         xticklabels=class_names,
-        yticklabels=class_names,
+        yticklabels=class_names_y,
         xlabel="Predicted label",
         ylabel="True label",
         title=f"{phase} Confusion Matrix",
     )
 
     # Text annotations
-    thresh = cm.max() / 2.0
-    for i in range(cm.shape[0]):
-        for j in range(cm.shape[1]):
+    thresh = cm_flipped.max() / 2.0
+    for i in range(cm_flipped.shape[0]):
+        for j in range(cm_flipped.shape[1]):
             ax.text(
-                j, i, format(cm[i, j], "d"),
+                j, i, format(cm_flipped[i, j], "d"),
                 ha="center", va="center",
-                color="white" if cm[i, j] > thresh else "black",
+                color="white" if cm_flipped[i, j] > thresh else "black",
                 fontsize=14,
             )
 
@@ -253,11 +267,14 @@ def print_metrics(metrics, class_names, phase="Validation"):
     print(f"  Loss:              {metrics['loss']:.4f}")
     print(f"  Accuracy:          {metrics['accuracy']:.2f}%")
     print(f"  Balanced Accuracy: {metrics['balanced_accuracy']:.2f}%")
+    print(f"  F1 (macro):        {metrics['f1_macro']:.4f}")
+    print(f"  F1 (weighted):     {metrics['f1_weighted']:.4f}")
     print(f"  Micro AUC:         {metrics['micro_auc']:.4f}")
     print(f"  Macro AUC:         {metrics['macro_auc']:.4f}")
 
     for i, name in enumerate(class_names):
         print(f"  AUC ({name}):         {metrics[f'auc_class_{i}']:.4f}")
+        print(f"  F1  ({name}):         {metrics[f'f1_class_{i}']:.4f}")
 
     # Confusion matrix
     cm = metrics["confusion_matrix"]
@@ -378,6 +395,8 @@ def train(cfg, device):
                 "val_loss": val_metrics["loss"],
                 "val_acc": val_metrics["accuracy"],
                 "val_balanced_acc": val_metrics["balanced_accuracy"],
+                "val_f1_macro": val_metrics["f1_macro"],
+                "val_f1_weighted": val_metrics["f1_weighted"],
                 "val_macro_auc": val_metrics["macro_auc"],
                 "lr": current_lr,
             })
@@ -465,6 +484,8 @@ def train(cfg, device):
                 "test_loss": test_metrics["loss"],
                 "test_acc": test_metrics["accuracy"],
                 "test_balanced_acc": test_metrics["balanced_accuracy"],
+                "test_f1_macro": test_metrics["f1_macro"],
+                "test_f1_weighted": test_metrics["f1_weighted"],
                 "test_macro_auc": test_metrics["macro_auc"],
             })
 
@@ -578,6 +599,8 @@ def train_kfold(cfg, device):
                     "val_loss": val_metrics["loss"],
                     "val_acc": val_metrics["accuracy"],
                     "val_balanced_acc": val_metrics["balanced_accuracy"],
+                    "val_f1_macro": val_metrics["f1_macro"],
+                    "val_f1_weighted": val_metrics["f1_weighted"],
                     "val_macro_auc": val_metrics["macro_auc"],
                     "lr": current_lr,
                 })
@@ -629,6 +652,8 @@ def train_kfold(cfg, device):
         fold_record = {
             "accuracy": best_metrics["accuracy"],
             "balanced_accuracy": best_metrics["balanced_accuracy"],
+            "f1_macro": best_metrics["f1_macro"],
+            "f1_weighted": best_metrics["f1_weighted"],
             "macro_auc": best_metrics["macro_auc"],
         }
         for i, name in enumerate(class_names):
