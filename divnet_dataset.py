@@ -46,7 +46,7 @@ def build_exclude_set(scan_csv_path, exclude_csv_path):
 
 def collect_file_paths(data_root, exclude_indices=None):
     """Scan data_root/3D_tensors/{CN,MCI,AD}/ and return (paths, labels)."""
-    tensor_dir = os.path.join(data_root, "3d-tensors")
+    tensor_dir = os.path.join(data_root, "3D_tensors")
     paths = []
     labels = []
 
