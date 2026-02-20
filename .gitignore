@@ -3,5 +3,3 @@ __pycache__/
 *.pyc
 wandb/
 .DS_Store
-
-inference_results.txt

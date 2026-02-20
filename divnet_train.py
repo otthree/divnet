@@ -31,6 +31,7 @@ from divnet_model import DivNet
 from divnet_dataset import (
     build_dataloaders,
     build_dataloaders_kfold,
+    build_exclude_set,
     collect_file_paths,
     patient_stratified_kfold,
     CLASS_MAP,
@@ -509,7 +510,14 @@ def train_kfold(cfg, device):
     # Collect all file paths and create folds
     print("Loading data...")
     data_cfg = cfg["data"]
-    paths, labels = collect_file_paths(data_cfg["data_root"])
+
+    exclude_indices = None
+    scan_csv = data_cfg.get("scan_csv")
+    exclude_csv = data_cfg.get("exclude_csv")
+    if scan_csv and exclude_csv:
+        exclude_indices = build_exclude_set(scan_csv, exclude_csv)
+
+    paths, labels = collect_file_paths(data_cfg["data_root"], exclude_indices=exclude_indices)
     if len(paths) == 0:
         raise RuntimeError(
             f"No .pt files found in {data_cfg['data_root']}/3d-tensors/{{CN,MCI,AD}}/. "

@@ -13,6 +13,7 @@ import random
 from collections import Counter
 
 import numpy as np
+import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
 from sklearn.model_selection import train_test_split, StratifiedKFold
@@ -21,7 +22,29 @@ from sklearn.model_selection import train_test_split, StratifiedKFold
 CLASS_MAP = {"CN": 0, "MCI": 1, "AD": 2}
 
 
-def collect_file_paths(data_root):
+def build_exclude_set(scan_csv_path, exclude_csv_path):
+    """
+    Build set of pt_index values to exclude based on CR detected patients.
+
+    Args:
+        scan_csv_path: Path to all_mri_scan_list.csv (pt_index -> patient_id mapping)
+        exclude_csv_path: Path to cr_detected_patients.csv (patients to exclude)
+
+    Returns:
+        Set of pt_index strings to exclude (e.g., {"0", "5", "123"})
+    """
+    scan_df = pd.read_csv(scan_csv_path)
+    exclude_df = pd.read_csv(exclude_csv_path)
+
+    exclude_pids = set(exclude_df["patient_id"].unique())
+    mask = scan_df["patient_id"].isin(exclude_pids)
+    exclude_indices = set(scan_df.loc[mask, "pt_index"].astype(str).values)
+
+    print(f"CR exclusion: {len(exclude_pids)} patients -> {len(exclude_indices)} scans excluded")
+    return exclude_indices
+
+
+def collect_file_paths(data_root, exclude_indices=None):
     """Scan data_root/3D_tensors/{CN,MCI,AD}/ and return (paths, labels)."""
     tensor_dir = os.path.join(data_root, "3d-tensors")
     paths = []
@@ -34,6 +57,10 @@ def collect_file_paths(data_root):
             continue
         for fname in sorted(os.listdir(class_dir)):
             if fname.endswith(".pt"):
+                if exclude_indices is not None:
+                    stem = os.path.splitext(fname)[0]
+                    if stem in exclude_indices:
+                        continue
                 paths.append(os.path.join(class_dir, fname))
                 labels.append(label)
 
@@ -280,8 +307,15 @@ def build_dataloaders(cfg):
     """
     data_cfg = cfg["data"]
 
+    # Build exclude set if configured
+    exclude_indices = None
+    scan_csv = data_cfg.get("scan_csv")
+    exclude_csv = data_cfg.get("exclude_csv")
+    if scan_csv and exclude_csv:
+        exclude_indices = build_exclude_set(scan_csv, exclude_csv)
+
     # Collect all file paths
-    paths, labels = collect_file_paths(data_cfg["data_root"])
+    paths, labels = collect_file_paths(data_cfg["data_root"], exclude_indices=exclude_indices)
 
     if len(paths) == 0:
         raise RuntimeError(
