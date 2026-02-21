@@ -36,11 +36,11 @@ def build_exclude_set(scan_csv_path, exclude_csv_path):
     scan_df = pd.read_csv(scan_csv_path)
     exclude_df = pd.read_csv(exclude_csv_path)
 
-    exclude_pids = set(exclude_df["patient_id"].unique())
-    mask = scan_df["patient_id"].isin(exclude_pids)
+    exclude_iids = set(exclude_df["image_id"].astype(str).unique())
+    mask = scan_df["image_id"].astype(str).isin(exclude_iids)
     exclude_indices = set(scan_df.loc[mask, "pt_index"].astype(str).values)
 
-    print(f"CR exclusion: {len(exclude_pids)} patients -> {len(exclude_indices)} scans excluded")
+    print(f"CR exclusion: {len(exclude_indices)} scans excluded (image-level)")
     return exclude_indices
 
 

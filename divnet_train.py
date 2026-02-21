@@ -324,10 +324,9 @@ def train(cfg, device):
     criterion = nn.CrossEntropyLoss(weight=class_weights.to(device))
 
     # Optimizer
-    optimizer = torch.optim.SGD(
+    optimizer = torch.optim.Adam(
         model.parameters(),
         lr=train_cfg["lr"],
-        momentum=train_cfg["momentum"],
         weight_decay=train_cfg["weight_decay"],
     )
 
@@ -558,10 +557,9 @@ def train_kfold(cfg, device):
         ).to(device)
 
         criterion = nn.CrossEntropyLoss(weight=class_weights.to(device))
-        optimizer = torch.optim.SGD(
+        optimizer = torch.optim.Adam(
             model.parameters(),
             lr=train_cfg["lr"],
-            momentum=train_cfg["momentum"],
             weight_decay=train_cfg["weight_decay"],
         )
         scheduler = torch.optim.lr_scheduler.MultiStepLR(
