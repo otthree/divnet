@@ -7,8 +7,8 @@ data:
   val_ratio: 0.15
   test_ratio: 0.15
   seed: 42
-  scan_csv: null      # Path to all_mri_scan_list.csv (pt_index -> patient_id mapping)
-  exclude_csv: null   # Path to cr_detected_patients.csv (CR patients to exclude)
+  scan_csv: /workspace/divnet/csv_splits_all_mri_scan_list.csv      # Path to all_mri_scan_list.csv (pt_index -> patient_id mapping)
+  exclude_csv: /workspace/divnet/cr_detected_patients.csv   # Path to cr_detected_patients.csv (CR patients to exclude)
 
 model:
   num_filters: 64
