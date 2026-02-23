@@ -324,11 +324,19 @@ def train(cfg, device):
     criterion = nn.CrossEntropyLoss(weight=class_weights.to(device))
 
     # Optimizer
-    optimizer = torch.optim.Adam(
-        model.parameters(),
-        lr=train_cfg["lr"],
-        weight_decay=train_cfg["weight_decay"],
-    )
+    if train_cfg.get("optimizer", "SGD").upper() == "ADAM":
+        optimizer = torch.optim.Adam(
+            model.parameters(),
+            lr=train_cfg["lr"],
+            weight_decay=train_cfg["weight_decay"],
+        )
+    else:
+        optimizer = torch.optim.SGD(
+            model.parameters(),
+            lr=train_cfg["lr"],
+            momentum=train_cfg.get("momentum", 0.9),
+            weight_decay=train_cfg["weight_decay"],
+        )
 
     # LR scheduler
     scheduler = torch.optim.lr_scheduler.MultiStepLR(
@@ -557,11 +565,19 @@ def train_kfold(cfg, device):
         ).to(device)
 
         criterion = nn.CrossEntropyLoss(weight=class_weights.to(device))
-        optimizer = torch.optim.Adam(
-            model.parameters(),
-            lr=train_cfg["lr"],
-            weight_decay=train_cfg["weight_decay"],
-        )
+        if train_cfg.get("optimizer", "SGD").upper() == "ADAM":
+            optimizer = torch.optim.Adam(
+                model.parameters(),
+                lr=train_cfg["lr"],
+                weight_decay=train_cfg["weight_decay"],
+            )
+        else:
+            optimizer = torch.optim.SGD(
+                model.parameters(),
+                lr=train_cfg["lr"],
+                momentum=train_cfg.get("momentum", 0.9),
+                weight_decay=train_cfg["weight_decay"],
+            )
         scheduler = torch.optim.lr_scheduler.MultiStepLR(
             optimizer,
             milestones=train_cfg["lr_milestones"],
