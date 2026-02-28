@@ -32,6 +32,7 @@ from divnet_dataset import (
     build_dataloaders,
     build_dataloaders_kfold,
     build_exclude_set,
+    build_pid_map,
     collect_file_paths,
     patient_stratified_kfold,
     CLASS_MAP,
@@ -531,7 +532,12 @@ def train_kfold(cfg, device):
             "Check data_root in config."
         )
 
-    folds_data = patient_stratified_kfold(paths, labels, n_folds=k_folds, seed=data_cfg["seed"])
+    # Build pid map if scan_csv is configured
+    pid_map = None
+    if scan_csv:
+        pid_map = build_pid_map(scan_csv)
+
+    folds_data = patient_stratified_kfold(paths, labels, n_folds=k_folds, seed=data_cfg["seed"], pid_map=pid_map)
 
     # Collect per-fold best metrics
     all_fold_metrics = []

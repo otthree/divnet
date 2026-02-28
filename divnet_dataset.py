@@ -44,6 +44,16 @@ def build_exclude_set(scan_csv_path, exclude_csv_path):
     return exclude_indices
 
 
+def build_pid_map(scan_csv_path):
+    """Build mapping from pt_index (filename stem) to patient_id using CSV."""
+    df = pd.read_csv(scan_csv_path)
+    pid_map = {}
+    for _, row in df.iterrows():
+        pid_map[str(row["pt_index"])] = row["patient_id"]
+    print(f"PID map: {len(pid_map)} entries, {len(set(pid_map.values()))} unique patients")
+    return pid_map
+
+
 def collect_file_paths(data_root, exclude_indices=None):
     """Scan data_root/3D_tensors/{CN,MCI,AD}/ and return (paths, labels)."""
     tensor_dir = os.path.join(data_root, "3D_tensors")
@@ -82,7 +92,7 @@ def extract_patient_id(filepath):
     return os.path.splitext(fname)[0]
 
 
-def patient_stratified_split(paths, labels, train_ratio, val_ratio, test_ratio, seed):
+def patient_stratified_split(paths, labels, train_ratio, val_ratio, test_ratio, seed, pid_map=None):
     """
     Split data by patient ID (stratified) to prevent data leakage.
     Returns (train_paths, train_labels), (val_paths, val_labels), (test_paths, test_labels).
@@ -90,7 +100,11 @@ def patient_stratified_split(paths, labels, train_ratio, val_ratio, test_ratio, 
     # Group files by patient
     patient_to_indices = {}
     for idx, path in enumerate(paths):
-        pid = extract_patient_id(path)
+        if pid_map is not None:
+            stem = os.path.splitext(os.path.basename(path))[0]
+            pid = pid_map.get(stem, stem)
+        else:
+            pid = extract_patient_id(path)
         if pid not in patient_to_indices:
             patient_to_indices[pid] = []
         patient_to_indices[pid].append(idx)
@@ -137,14 +151,18 @@ def patient_stratified_split(paths, labels, train_ratio, val_ratio, test_ratio, 
     return train_data, val_data, test_data
 
 
-def patient_stratified_kfold(paths, labels, n_folds=5, seed=42):
+def patient_stratified_kfold(paths, labels, n_folds=5, seed=42, pid_map=None):
     """
     Split data into k folds by patient ID (stratified).
     Returns list of k tuples: (train_paths, train_labels, val_paths, val_labels).
     """
     patient_to_indices = {}
     for idx, path in enumerate(paths):
-        pid = extract_patient_id(path)
+        if pid_map is not None:
+            stem = os.path.splitext(os.path.basename(path))[0]
+            pid = pid_map.get(stem, stem)
+        else:
+            pid = extract_patient_id(path)
         if pid not in patient_to_indices:
             patient_to_indices[pid] = []
         patient_to_indices[pid].append(idx)
@@ -314,6 +332,11 @@ def build_dataloaders(cfg):
     if scan_csv and exclude_csv:
         exclude_indices = build_exclude_set(scan_csv, exclude_csv)
 
+    # Build pid map if scan_csv is configured
+    pid_map = None
+    if scan_csv:
+        pid_map = build_pid_map(scan_csv)
+
     # Collect all file paths
     paths, labels = collect_file_paths(data_cfg["data_root"], exclude_indices=exclude_indices)
 
@@ -331,6 +354,7 @@ def build_dataloaders(cfg):
             val_ratio=data_cfg["val_ratio"],
             test_ratio=data_cfg["test_ratio"],
             seed=data_cfg["seed"],
+            pid_map=pid_map,
         )
 
     # Datasets

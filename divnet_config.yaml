@@ -7,7 +7,7 @@ data:
   val_ratio: 0.15
   test_ratio: 0.15
   seed: 42
-  # scan_csv: /workspace/divnet/csv_splits_all_mri_scan_list.csv
+  scan_csv: /workspace/divnet/csv_splits_all_mri_scan_list.csv
   # exclude_csv: /workspace/divnet/cr_detected_patients.csv
 
 model:
